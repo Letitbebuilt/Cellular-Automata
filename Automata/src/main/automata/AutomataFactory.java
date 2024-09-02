@@ -11,7 +11,8 @@ import main.automata.Automata.NeighborType;
 
 public class AutomataFactory {
 	public static enum AutomataTypes{
-		CONWAY(List.of(new State("Alive", Color.LIGHT_GRAY), new State("Dead", Color.BLACK)), new Function<>() {
+		CONWAY("Conway's Game of Life",
+			List.of(new State("Alive", Color.LIGHT_GRAY), new State("Dead", Color.BLACK)), new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				for(Automata neighbor: t.neighbors) {
@@ -29,7 +30,8 @@ public class AutomataFactory {
 				return true;
 			}
 		}, "Dead", NeighborType.MOORE),
-		BRIANS_BRAIN(List.of(new State("On", Color.LIGHT_GRAY), new State("Dying", Color.CYAN), new State("Off", Color.BLACK)), new Function<>() {
+		BRIANS_BRAIN("Brian's Brain",
+				List.of(new State("On", Color.LIGHT_GRAY), new State("Dying", Color.CYAN), new State("Off", Color.BLACK)), new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				if(t.isState("On")) {
@@ -51,7 +53,8 @@ public class AutomataFactory {
 				return true;
 			}
 		}, "Off", NeighborType.MOORE),
-		WIRE_WORLD(List.of(new State("Wire", Color.LIGHT_GRAY), new State("Electron Head", Color.YELLOW), new State("Electron Tail", Color.RED), new State("Grounding", Color.BLACK)), new Function<>() {
+		WIRE_WORLD("Wire World",
+				List.of(new State("Wire", Color.LIGHT_GRAY), new State("Electron Head", Color.YELLOW), new State("Electron Tail", Color.RED), new State("Grounding", Color.BLACK)), new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				if(t.isState("Grounding")) {/*do nothing*/}
@@ -74,7 +77,8 @@ public class AutomataFactory {
 				return true;
 			}
 		}, "Grounding", NeighborType.MOORE),
-		LANGTON_ANT(List.of(
+		LANGTON_ANT("Langton's Ant",
+				List.of(
 				new State("White", Color.LIGHT_GRAY), 
 				new State("Black", Color.BLACK), 
 				new State("Ant L W", Color.MAGENTA), 
@@ -138,7 +142,8 @@ public class AutomataFactory {
 				return true;
 			}
 		}, "Black", NeighborType.VON_NEUMANN),
-		DAY_AND_NIGHT(List.of(new State("Alive", Color.ORANGE), new State("Dead", Color.BLACK)), new Function<>() {
+		DAY_AND_NIGHT("Day and Night",
+				List.of(new State("Alive", Color.ORANGE), new State("Dead", Color.BLACK)), new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				for(Automata neighbor: t.neighbors) {
@@ -156,11 +161,13 @@ public class AutomataFactory {
 				return true;
 			}
 		}, "Dead", NeighborType.MOORE);
+		public String name;
 		public List<State> states;
 		public Function<Automata, Boolean> transitionRules;
 		public String defaultStateName;
 		public NeighborType neighborType;
-		AutomataTypes(List<State> states, Function<Automata, Boolean> transitionRules, String defaultStateName, NeighborType neighborType) {
+		AutomataTypes(String name, List<State> states, Function<Automata, Boolean> transitionRules, String defaultStateName, NeighborType neighborType) {
+			this.name = name;
 			this.states = states;
 			this.transitionRules = transitionRules;
 			this.defaultStateName = defaultStateName;

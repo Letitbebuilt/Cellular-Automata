@@ -8,13 +8,19 @@ import java.awt.Label;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.function.Supplier;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.MaskFormatter;
 
 import main.automata.AutomataFactory;
 import main.display.CellDisplay;
@@ -76,27 +82,18 @@ public class App {
 		Label typeLabel = new Label("Type of automata: ");
 		simTypeControlWrapper.add(typeLabel);
 		applyLabelStyling(typeLabel, 12);
-		String[] typeArray = {"Conway's Game of Life", "Brian's Brain", "WireWorld", "Langton's Ant", "Day and Night"};
-		JComboBox<String> typeOptions = new JComboBox<String>(typeArray);
+		
+		String[] names = new String[AutomataFactory.AutomataTypes.values().length];
+		for(int i = 0; i<names.length; i++) {
+			names[i] = AutomataFactory.AutomataTypes.values()[i].name;
+		}
+		JComboBox<String> typeOptions = new JComboBox<String>(names);
 		simTypeControlWrapper.add(typeOptions);
 		applyDropdownStyling(typeOptions);
 		typeOptions.addActionListener(e ->{
-			@SuppressWarnings("unchecked")
 			int optionSelected = ((JComboBox<String>)e.getSource()).getSelectedIndex();
 			AutomataFactory.AutomataTypes type = AutomataFactory.AutomataTypes.CONWAY;
-			switch(optionSelected) {
-				case 0: type = AutomataFactory.AutomataTypes.CONWAY;
-					break;
-				case 1: type = AutomataFactory.AutomataTypes.BRIANS_BRAIN;
-					break;
-				case 2: type = AutomataFactory.AutomataTypes.WIRE_WORLD;
-					break;
-				case 3: type = AutomataFactory.AutomataTypes.LANGTON_ANT;
-					break;
-				case 4: type = AutomataFactory.AutomataTypes.DAY_AND_NIGHT;
-					break;
-			}
-			
+			type = AutomataFactory.AutomataTypes.values()[optionSelected];
 			linkup.setSimulationType(type);
 			stateOptions.removeAllItems();
 			for(String stateName: type.getStateNames()) {
@@ -133,7 +130,6 @@ public class App {
 		sizeOptions.setSelectedIndex(1);
 		simSizeControlWrapper.add(sizeOptions);
 		sizeOptions.addActionListener(e ->{
-			@SuppressWarnings("unchecked")
 			int optionSelected = ((JComboBox<String>)e.getSource()).getSelectedIndex();
 			switch(optionSelected) {
 				case 0: linkup.adjustBoardDimensions(50);
@@ -148,8 +144,39 @@ public class App {
 		});
 		controlPanelWrapper.add(simSizeControlWrapper);
 		controlPanelWrapper.setBackground(Color.BLACK);
+		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
+
 		
 		
+		JPanel speedControlWrapper = new JPanel();
+		speedControlWrapper.setLayout(new BoxLayout(speedControlWrapper, BoxLayout.X_AXIS));
+		Label speedControlLabel = new Label("Desired Cycles Per Second: ");
+		speedControlWrapper.add(speedControlLabel);
+		applyLabelStyling(speedControlLabel, 12);
+
+		String[] speedOptArray = {"1/s", "5/s", "10/s", "20/s", "30/s", "60/s"};
+		JComboBox<String> speedOptions = new JComboBox<String>(speedOptArray);
+		speedOptions.setSelectedIndex(3);
+		speedControlWrapper.add(speedOptions);
+		speedOptions.addActionListener(e ->{
+			int optionSelected = ((JComboBox<String>)e.getSource()).getSelectedIndex();
+			switch(optionSelected) {
+				case 0: linkup.setPreferredFPS(1);
+					break;
+				case 1: linkup.setPreferredFPS(5);
+					break;
+				case 2: linkup.setPreferredFPS(10);
+					break;
+				case 3: linkup.setPreferredFPS(20);
+					break;
+				case 4: linkup.setPreferredFPS(30);
+					break;
+				case 5: linkup.setPreferredFPS(60);
+					break;
+			}
+		});
+		controlPanelWrapper.add(speedControlWrapper);
+		controlPanelWrapper.setBackground(Color.BLACK);
 		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
 		
 		JPanel playPauseButtonWrapper = new JPanel();
@@ -177,7 +204,7 @@ public class App {
 		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 5)));
 		DecimalFormat sdf = new DecimalFormat("0.000");
 		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 20), () -> "Cycles/Sec: "+(sdf.format(linkup.getCyclesPerSecond()))));
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 45)));
+		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 10)));
 		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 10), () -> "Application created by Samuel Vega"));
 		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 10), () -> "Distributed under CC BY-NC-SA 4.0."));
 		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 10), () -> "https://creativecommons.org/licenses/by-nc-sa/4.0/"));

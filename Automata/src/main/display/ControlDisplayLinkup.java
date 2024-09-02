@@ -26,7 +26,6 @@ import main.automata.AutomataFactory.AutomataTypes;
 import main.board.Board;
 
 public class ControlDisplayLinkup {
-	private CellDisplay display;
 	private Board board;
 	Timer timer;
 	long oldTime;
@@ -44,9 +43,8 @@ public class ControlDisplayLinkup {
 		board = new Board(100);
 		board.clear();
 		display.setBoard(board);
-		this.display = display;
 		refreshPanels.add(display);
-        timer = new Timer(10, new ActionListener() {
+        timer = new Timer(1, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -186,7 +184,7 @@ public class ControlDisplayLinkup {
 	
 	public JButton getIconButtonForTask(String imgSrc, Supplier<Boolean> supplier, Dimension dimensions) {
 		JButton button = new JButton();
-		button.setBackground(Color.BLACK);				
+		button.setBackground(Color.BLACK);		
 		button.addMouseListener(new MouseListener() {
 			@Override
 			public void mousePressed(MouseEvent e) {
