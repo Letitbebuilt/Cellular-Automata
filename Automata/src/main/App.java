@@ -4,28 +4,27 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.text.DecimalFormat;
-import java.text.ParseException;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.MaskFormatter;
 
 import main.automata.AutomataFactory;
 import main.display.CellDisplay;
 import main.display.ControlDisplayLinkup;
 import main.display.ZoomedCellDisplay;
+import main.display.environmentControl.EnvironmentControlPanel;
 
 public class App {
 	final static String IMG_PATH = "resources/";
@@ -65,7 +64,7 @@ public class App {
 		controlPanelWrapper.setLayout(new BoxLayout(controlPanelWrapper, BoxLayout.Y_AXIS));
 		controlPanelWrapper.add(zoomDisplay);
 		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
-		
+		controlPanelWrapper.setMaximumSize(new Dimension(zoomDisplay.getPreferredSize().width, display.getPreferredSize().height));
 		
 		
 		JComboBox<String> stateOptions = new JComboBox<String>();
@@ -77,35 +76,25 @@ public class App {
 		linkup.setDrawingStateType((String) stateOptions.getSelectedItem());
 		
 		
-		JPanel simTypeControlWrapper = new JPanel();
-		simTypeControlWrapper.setLayout(new BoxLayout(simTypeControlWrapper, BoxLayout.X_AXIS));
-		Label typeLabel = new Label("Type of automata: ");
-		simTypeControlWrapper.add(typeLabel);
-		applyLabelStyling(typeLabel, 12);
 		
-		String[] names = new String[AutomataFactory.AutomataTypes.values().length];
-		for(int i = 0; i<names.length; i++) {
-			names[i] = AutomataFactory.AutomataTypes.values()[i].name;
-		}
-		JComboBox<String> typeOptions = new JComboBox<String>(names);
-		simTypeControlWrapper.add(typeOptions);
-		applyDropdownStyling(typeOptions);
-		typeOptions.addActionListener(e ->{
-			int optionSelected = ((JComboBox<String>)e.getSource()).getSelectedIndex();
-			AutomataFactory.AutomataTypes type = AutomataFactory.AutomataTypes.CONWAY;
-			type = AutomataFactory.AutomataTypes.values()[optionSelected];
-			linkup.setSimulationType(type);
-			stateOptions.removeAllItems();
-			for(String stateName: type.getStateNames()) {
-				stateOptions.addItem(stateName);
-			}
-		});
-		controlPanelWrapper.add(simTypeControlWrapper);
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
+		EnvironmentControlPanel controlPanel = new EnvironmentControlPanel();
+		controlPanelWrapper.add(controlPanel);
 		
+		controlPanel.createDropdownControlOption("Type of automata: ", 
+				(e -> {
+					linkup.setSimulationType(e);
+					stateOptions.removeAllItems();
+					for(String stateName: e.getStateNames()) {
+						stateOptions.addItem(stateName);
+					}
+				}),
+				Stream.of(AutomataFactory.AutomataTypes.values()).map(e -> e.name).collect(Collectors.toList()),
+				Stream.of(AutomataFactory.AutomataTypes.values()).collect(Collectors.toList()));
+		controlPanel.addVerticalSpacer(15);
 		
 		
 		JPanel stateDrawingWrapper = new JPanel();
+		controlPanel.add(stateDrawingWrapper);
 		stateDrawingWrapper.setLayout(new BoxLayout(stateDrawingWrapper, BoxLayout.X_AXIS));
 		Label stateDrawingLabel = new Label("Draw Cells in State: ");
 		stateDrawingWrapper.add(stateDrawingLabel);
@@ -114,92 +103,43 @@ public class App {
 		stateOptions.addActionListener(e ->{
 			linkup.setDrawingStateType((String)((JComboBox<String>)e.getSource()).getSelectedItem());
 		});
-		controlPanelWrapper.add(stateDrawingWrapper);
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
+		controlPanel.addVerticalSpacer(15);
 		
+		controlPanel.createDropdownControlOption("Dimensions of simulation: ", 
+				(e -> {
+					linkup.adjustBoardDimensions(e);
+				}),
+				List.of("50 x 50", "100 x 100", "200 x 200", "400 x 400"),
+				List.of(50, 100, 200, 400));
 		
-		
-		JPanel simSizeControlWrapper = new JPanel();
-		simSizeControlWrapper.setLayout(new BoxLayout(simSizeControlWrapper, BoxLayout.X_AXIS));
-		Label sizeControlLabel = new Label("Dimensions of simulation: ");
-		simSizeControlWrapper.add(sizeControlLabel);
-		applyLabelStyling(sizeControlLabel, 12);
+		controlPanel.addVerticalSpacer(15);
 
-		String[] sizeOptArray = {"50 x 50", "100 x 100", "200 x 200", "400 x 400"};
-		JComboBox<String> sizeOptions = new JComboBox<String>(sizeOptArray);
-		sizeOptions.setSelectedIndex(1);
-		simSizeControlWrapper.add(sizeOptions);
-		sizeOptions.addActionListener(e ->{
-			int optionSelected = ((JComboBox<String>)e.getSource()).getSelectedIndex();
-			switch(optionSelected) {
-				case 0: linkup.adjustBoardDimensions(50);
-					break;
-				case 1: linkup.adjustBoardDimensions(100);
-					break;
-				case 2: linkup.adjustBoardDimensions(200);
-					break;
-				case 3: linkup.adjustBoardDimensions(400);
-					break;
-			}
-		});
-		controlPanelWrapper.add(simSizeControlWrapper);
-		controlPanelWrapper.setBackground(Color.BLACK);
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
+		controlPanel.createDropdownControlOption("Desired Cycles Per Second: ", 
+				(e -> {
+					linkup.setPreferredFPS(e);
+				}),
+				List.of("1/s", "5/s", "10/s", "20/s", "30/s", "60/s"),
+				List.of(1, 5, 10, 20, 30, 60));
 
+		controlPanel.addVerticalSpacer(15);
 		
 		
-		JPanel speedControlWrapper = new JPanel();
-		speedControlWrapper.setLayout(new BoxLayout(speedControlWrapper, BoxLayout.X_AXIS));
-		Label speedControlLabel = new Label("Desired Cycles Per Second: ");
-		speedControlWrapper.add(speedControlLabel);
-		applyLabelStyling(speedControlLabel, 12);
-
-		String[] speedOptArray = {"1/s", "5/s", "10/s", "20/s", "30/s", "60/s"};
-		JComboBox<String> speedOptions = new JComboBox<String>(speedOptArray);
-		speedOptions.setSelectedIndex(3);
-		speedControlWrapper.add(speedOptions);
-		speedOptions.addActionListener(e ->{
-			int optionSelected = ((JComboBox<String>)e.getSource()).getSelectedIndex();
-			switch(optionSelected) {
-				case 0: linkup.setPreferredFPS(1);
-					break;
-				case 1: linkup.setPreferredFPS(5);
-					break;
-				case 2: linkup.setPreferredFPS(10);
-					break;
-				case 3: linkup.setPreferredFPS(20);
-					break;
-				case 4: linkup.setPreferredFPS(30);
-					break;
-				case 5: linkup.setPreferredFPS(60);
-					break;
-			}
-		});
-		controlPanelWrapper.add(speedControlWrapper);
-		controlPanelWrapper.setBackground(Color.BLACK);
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
 		
-		JPanel playPauseButtonWrapper = new JPanel();
+		JPanel playPauseButtonWrapper = new JPanel(new GridLayout(1, 5));
 		playPauseButtonWrapper.setLayout(new BoxLayout(playPauseButtonWrapper, BoxLayout.X_AXIS));
-		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"play.png", ()->linkup.startSimulation(), new Dimension(90, 90)));
-		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(15, 90)));
-		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"step.png", ()->linkup.stepForwardOneCycle(), new Dimension(90, 90)));
-		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(15, 90)));
-		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"pause.png", ()->linkup.stopSimulation(), new Dimension(90, 90)));
+		Dimension buttonSize = new Dimension(50, 50);
+		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"play.png", ()->linkup.startSimulation(), buttonSize));
+		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"step.png", ()->linkup.stepForwardOneCycle(), buttonSize));
+		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"pause.png", ()->linkup.stopSimulation(), buttonSize));
+		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"rng-cells.png", ()->linkup.generateRandomBoard(), buttonSize));
+		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"empty-cells.png", ()->linkup.clearBoard(), buttonSize));
 		controlPanelWrapper.add(playPauseButtonWrapper);
-
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 30)));
 		
-		JPanel boardResetButtonWrapper= new JPanel();
-		boardResetButtonWrapper.setLayout(new BoxLayout(boardResetButtonWrapper, BoxLayout.X_AXIS));
-		boardResetButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"rng-cells.png", ()->linkup.generateRandomBoard(), new Dimension(90, 90)));
-		boardResetButtonWrapper.add(getJPanelSpacer(new Dimension(15, 90)));
-		boardResetButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"empty-cells.png", ()->linkup.clearBoard(), new Dimension(90, 90)));
-		boardResetButtonWrapper.add(getJPanelSpacer(new Dimension(15, 90)));
-		boardResetButtonWrapper.add(getJPanelSpacer(new Dimension(90, 90)));
-		controlPanelWrapper.add(boardResetButtonWrapper);
-
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 30)));
+		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 45)));
 		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 20), () -> "Status: "+(linkup.isRunning()?"Running":"Paused")));
 		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 5)));
 		DecimalFormat sdf = new DecimalFormat("0.000");
@@ -211,6 +151,7 @@ public class App {
 		
 		wrapper.add(display);
 		wrapper.add(controlPanelWrapper);
+		controlPanelWrapper.setBackground(Color.black);
         linkup.linkupZoomedCellDisplay(display, zoomDisplay);
         frame.getContentPane().add(wrapper, BorderLayout.CENTER);
 	}
@@ -234,9 +175,5 @@ public class App {
 		label.setBackground(Color.black);
 		label.setForeground(Color.LIGHT_GRAY);
 		label.setFont(new Font("Arial", Font.BOLD, fontHeight));
-	}
-	
-	private static void applyDropdownStyling(JComboBox<?> box) {
-		
 	}
 }
