@@ -198,7 +198,6 @@ public class ControlDisplayLinkup {
 			
 		});
 		button.setPreferredSize(dimensions);
-		button.setSize(dimensions);
 		ImageIcon icon = new ImageIcon(imgSrc);
 		icon.setImage(icon.getImage().getScaledInstance(dimensions.width, dimensions.height, Image.SCALE_DEFAULT));
 		button.setIcon(icon);
