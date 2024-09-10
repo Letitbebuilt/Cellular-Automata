@@ -31,8 +31,6 @@ public class ControlDisplayLinkup {
 	long oldTime;
 	long deltaMillis;
 	int desiredFPS = 20;
-	int fpsMeaureUpdateRate = 5;
-	double actualFPS = 0;
 	int counter = 0;
 	ArrayList<JPanel> refreshPanels = new ArrayList<>();
 	HashMap<Label, Supplier<String>> textRefreshPanels = new HashMap<>();
@@ -50,19 +48,11 @@ public class ControlDisplayLinkup {
 			public void actionPerformed(ActionEvent e) {
 				deltaMillis += Math.max(0, System.currentTimeMillis() - oldTime);
 				oldTime = System.currentTimeMillis();
-				if((1000/desiredFPS) <= deltaMillis) {
+				while(deltaMillis > (1000/desiredFPS)) {
 					board.loadNextStates();
-					repaintObjects();
-					counter++;
-					if(counter >= fpsMeaureUpdateRate) {
-						counter = 0;
-						actualFPS = 1000d/deltaMillis;
-					}
-					
-					deltaMillis = 0;
+					deltaMillis -= (1000/desiredFPS);
 				}
-				
-				
+				repaintObjects();
 			}
         	
         });
@@ -177,10 +167,6 @@ public class ControlDisplayLinkup {
 		return timer.isRunning();
 	}
 	
-	public double getCyclesPerSecond() {
-		return actualFPS;
-	}
-	
 	
 	public JButton getIconButtonForTask(String imgSrc, Supplier<Boolean> supplier, Dimension dimensions) {
 		JButton button = new JButton();
@@ -198,7 +184,6 @@ public class ControlDisplayLinkup {
 			
 		});
 		button.setPreferredSize(dimensions);
-		button.setSize(dimensions);
 		ImageIcon icon = new ImageIcon(imgSrc);
 		icon.setImage(icon.getImage().getScaledInstance(dimensions.width, dimensions.height, Image.SCALE_DEFAULT));
 		button.setIcon(icon);

@@ -3,12 +3,14 @@ package main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import main.automata.AutomataFactory;
+import main.automata.AutomataFactory.AutomataTypes;
 import main.display.CellDisplay;
 import main.display.ControlDisplayLinkup;
 import main.display.ZoomedCellDisplay;
@@ -59,11 +62,11 @@ public class App {
         CellDisplay display = new CellDisplay();
         ZoomedCellDisplay zoomDisplay = new ZoomedCellDisplay();
         ControlDisplayLinkup linkup = new ControlDisplayLinkup(display);
-
+        
 		JPanel controlPanelWrapper = new JPanel();
 		controlPanelWrapper.setLayout(new BoxLayout(controlPanelWrapper, BoxLayout.Y_AXIS));
 		controlPanelWrapper.add(zoomDisplay);
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 15)));
+		controlPanelWrapper.add(getVerticalSpacer(15));
 		controlPanelWrapper.setMaximumSize(new Dimension(zoomDisplay.getPreferredSize().width, display.getPreferredSize().height));
 		
 		
@@ -78,8 +81,10 @@ public class App {
 		
 		
 		EnvironmentControlPanel controlPanel = new EnvironmentControlPanel();
+		controlPanel.setMaximumSize(new Dimension((int)zoomDisplay.getPreferredSize().getWidth(), 10000));
 		controlPanelWrapper.add(controlPanel);
-		
+		LinkedHashMap<String, AutomataTypes> automataTypesMap = new LinkedHashMap<>();
+		Stream.of(AutomataFactory.AutomataTypes.values()).forEach(e -> automataTypesMap.put(e.name, e));
 		controlPanel.createDropdownControlOption("Type of automata: ", 
 				(e -> {
 					linkup.setSimulationType(e);
@@ -88,8 +93,7 @@ public class App {
 						stateOptions.addItem(stateName);
 					}
 				}),
-				Stream.of(AutomataFactory.AutomataTypes.values()).map(e -> e.name).collect(Collectors.toList()),
-				Stream.of(AutomataFactory.AutomataTypes.values()).collect(Collectors.toList()));
+				automataTypesMap);
 		controlPanel.addVerticalSpacer(15);
 		
 		
@@ -105,21 +109,31 @@ public class App {
 		});
 		controlPanel.addVerticalSpacer(15);
 		
-		controlPanel.createDropdownControlOption("Dimensions of simulation: ", 
+		LinkedHashMap<String, Integer> dimensionOptionHashMap = new LinkedHashMap<>();
+		dimensionOptionHashMap.put("50x50", 50);
+		dimensionOptionHashMap.put("100x100", 100);
+		dimensionOptionHashMap.put("200x200", 200);
+		dimensionOptionHashMap.put("400x400", 400);
+		controlPanel.createRadioControlOption("Dimensions of simulation: ", 
 				(e -> {
 					linkup.adjustBoardDimensions(e);
 				}),
-				List.of("50 x 50", "100 x 100", "200 x 200", "400 x 400"),
-				List.of(50, 100, 200, 400));
+				dimensionOptionHashMap, 1);
 		
 		controlPanel.addVerticalSpacer(15);
 
-		controlPanel.createDropdownControlOption("Desired Cycles Per Second: ", 
+		LinkedHashMap<String, Integer> cycleOptionHashMap = new LinkedHashMap<>();
+		cycleOptionHashMap.put("1/s", 1);
+		cycleOptionHashMap.put("5/s", 5);
+		cycleOptionHashMap.put("10/s", 10);
+		cycleOptionHashMap.put("20/s", 20);
+		cycleOptionHashMap.put("30/s", 30);
+		cycleOptionHashMap.put("60/s", 60);
+		controlPanel.createRadioControlOption("Desired Cycles Per Second: ", 
 				(e -> {
 					linkup.setPreferredFPS(e);
 				}),
-				List.of("1/s", "5/s", "10/s", "20/s", "30/s", "60/s"),
-				List.of(1, 5, 10, 20, 30, 60));
+				cycleOptionHashMap, 3);
 
 		controlPanel.addVerticalSpacer(15);
 		
@@ -127,27 +141,26 @@ public class App {
 		
 		JPanel playPauseButtonWrapper = new JPanel(new GridLayout(1, 5));
 		playPauseButtonWrapper.setLayout(new BoxLayout(playPauseButtonWrapper, BoxLayout.X_AXIS));
+		playPauseButtonWrapper.setMaximumSize(new Dimension((int)zoomDisplay.getPreferredSize().getWidth(), 100));
 		Dimension buttonSize = new Dimension(50, 50);
 		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"play.png", ()->linkup.startSimulation(), buttonSize));
-		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(getHorizontalSpacer(2));
 		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"step.png", ()->linkup.stepForwardOneCycle(), buttonSize));
-		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(getHorizontalSpacer(2));
 		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"pause.png", ()->linkup.stopSimulation(), buttonSize));
-		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(getHorizontalSpacer(2));
 		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"rng-cells.png", ()->linkup.generateRandomBoard(), buttonSize));
-		playPauseButtonWrapper.add(getJPanelSpacer(new Dimension(10, buttonSize.height)));
+		playPauseButtonWrapper.add(getHorizontalSpacer(2));
 		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"empty-cells.png", ()->linkup.clearBoard(), buttonSize));
 		controlPanelWrapper.add(playPauseButtonWrapper);
 		
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 45)));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 20), () -> "Status: "+(linkup.isRunning()?"Running":"Paused")));
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 5)));
+		controlPanelWrapper.add(getVerticalSpacer(25));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 15, () -> "Status: "+(linkup.isRunning()?"Running":"Paused")));
+		controlPanelWrapper.add(getVerticalSpacer(5));
 		DecimalFormat sdf = new DecimalFormat("0.000");
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 20), () -> "Cycles/Sec: "+(sdf.format(linkup.getCyclesPerSecond()))));
-		controlPanelWrapper.add(getJPanelSpacer(new Dimension(300, 10)));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 10), () -> "Application created by Samuel Vega"));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 10), () -> "Distributed under CC BY-NC-SA 4.0."));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, new Dimension(300, 10), () -> "https://creativecommons.org/licenses/by-nc-sa/4.0/"));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 8, () -> "Application created by Samuel Vega"));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 8, () -> "Distributed under CC BY-NC-SA 4.0."));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 8, () -> "https://creativecommons.org/licenses/by-nc-sa/4.0/"));
 		
 		wrapper.add(display);
 		wrapper.add(controlPanelWrapper);
@@ -156,17 +169,22 @@ public class App {
         frame.getContentPane().add(wrapper, BorderLayout.CENTER);
 	}
 	
-	private static JPanel getJPanelSpacer(Dimension d) {
+	private static JPanel getVerticalSpacer(int vertSpace) {
 		JPanel spacer = new JPanel();
-		spacer.setPreferredSize(d);
+		spacer.setPreferredSize(new Dimension(0, vertSpace));
+		spacer.setBackground(Color.black);
+		return spacer;
+	}
+	private static JPanel getHorizontalSpacer(int horiSpace) {
+		JPanel spacer = new JPanel();
+		spacer.setPreferredSize(new Dimension(horiSpace, 0));
 		spacer.setBackground(Color.black);
 		return spacer;
 	}
 	
-	private static Label getLabelSpacerWithUpdatingText(ControlDisplayLinkup linkup, Dimension d, Supplier<String> text) {
+	private static Label getLabelSpacerWithUpdatingText(ControlDisplayLinkup linkup, int fontSize, Supplier<String> text) {
 		Label label = new Label();
-		label.setPreferredSize(d);
-		applyLabelStyling(label, d.height);
+		applyLabelStyling(label, fontSize);
 		linkup.addUpdatingLabel(label, text);
 		return label;
 	}
