@@ -118,7 +118,7 @@ public class App {
 				(e -> {
 					linkup.adjustBoardDimensions(e);
 				}),
-				dimensionOptionHashMap);
+				dimensionOptionHashMap, 1);
 		
 		controlPanel.addVerticalSpacer(15);
 
@@ -133,7 +133,7 @@ public class App {
 				(e -> {
 					linkup.setPreferredFPS(e);
 				}),
-				cycleOptionHashMap);
+				cycleOptionHashMap, 3);
 
 		controlPanel.addVerticalSpacer(15);
 		
@@ -154,15 +154,13 @@ public class App {
 		playPauseButtonWrapper.add(linkup.getIconButtonForTask(IMG_PATH+"empty-cells.png", ()->linkup.clearBoard(), buttonSize));
 		controlPanelWrapper.add(playPauseButtonWrapper);
 		
-		controlPanelWrapper.add(getVerticalSpacer(45));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 20, () -> "Status: "+(linkup.isRunning()?"Running":"Paused")));
+		controlPanelWrapper.add(getVerticalSpacer(25));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 15, () -> "Status: "+(linkup.isRunning()?"Running":"Paused")));
 		controlPanelWrapper.add(getVerticalSpacer(5));
 		DecimalFormat sdf = new DecimalFormat("0.000");
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 20, () -> "Cycles/Sec: "+(sdf.format(linkup.getCyclesPerSecond()))));
-		controlPanelWrapper.add(getVerticalSpacer(10));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 10, () -> "Application created by Samuel Vega"));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 10, () -> "Distributed under CC BY-NC-SA 4.0."));
-		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 10, () -> "https://creativecommons.org/licenses/by-nc-sa/4.0/"));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 8, () -> "Application created by Samuel Vega"));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 8, () -> "Distributed under CC BY-NC-SA 4.0."));
+		controlPanelWrapper.add(getLabelSpacerWithUpdatingText(linkup, 8, () -> "https://creativecommons.org/licenses/by-nc-sa/4.0/"));
 		
 		wrapper.add(display);
 		wrapper.add(controlPanelWrapper);

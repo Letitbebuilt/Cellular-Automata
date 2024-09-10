@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -56,7 +57,7 @@ public class EnvironmentControlPanel extends JPanel{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> void createRadioControlOption(String controlName, Consumer<T> actionToPerform, HashMap<String, T> displayValueMap) {
+	public <T> void createRadioControlOption(String controlName, Consumer<T> actionToPerform, HashMap<String, T> displayValueMap, int initialSelected) {
 		
 		JPanel radioControl = new JPanel();
 		radioControl.setLayout(new BoxLayout(radioControl, BoxLayout.Y_AXIS));
@@ -66,16 +67,19 @@ public class EnvironmentControlPanel extends JPanel{
 		radioControl.add(labelFloatPanel);
 		ButtonGroup radioButtonGroup = new ButtonGroup();
 		JPanel radioButtonsPanel = new JPanel();
-		radioButtonsPanel.setLayout(new BoxLayout(radioButtonsPanel, BoxLayout.X_AXIS));
+		radioButtonsPanel.setLayout(new GridLayout(2, 3));
 		radioControl.add(radioButtonsPanel);
-		for(String name: displayValueMap.keySet()) {
+		ArrayList<String> names = new ArrayList<>(displayValueMap.keySet());
+		for(int i = 0; i<names.size(); i++) {
+			String name = names.get(i);
 			JPanel labelButtonPair = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			JLabel radioLabel = new JLabel(name);
 			this.applyLabelStyling(radioLabel, 12);
 			labelButtonPair.add(radioLabel);
 			JRadioButton radioButton = new JRadioButton();
 			
-			radioButton.addActionListener(e -> displayValueMap.get(name));
+			radioButton.addActionListener(e -> actionToPerform.accept(displayValueMap.get(name)));
+			radioButton.setSelected(i == initialSelected);
 			labelButtonPair.add(radioButton);
 			radioButtonGroup.add(radioButton);
 			radioButtonsPanel.add(labelButtonPair);
