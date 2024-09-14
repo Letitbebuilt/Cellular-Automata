@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Conway's Game Of Life</name>
+	<neighbor-type>MOORE</neighbor-type><!--MOORE and VON-NEUMANN supported, defaults to MOORE-->
+	<states><!-- states for the automata -->
+		<state>
+			<name>Alive</name><!--Will match case in application-->
+			<color>WHITE</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
+		</state>
+		<state>
+			<name>DEAD</name>
+			<color>BLACK</color>
+		</state>
+	</states>
+	<transitions><!-- transition rules between states for the automata -->
+		<transition>
+			<state-from>DEAD</state-from><!--state coming from (not case sensitive)-->
+			<state-to>ALIVE</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+				<condition>
+					<state>ALIVE</state><!--state to check (not case sentitive)-->
+					<quantity>3</quantity><!--neighbors matching state-->
+					<direction></direction><!--which neighbor to check-->
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>ALIVE</state-from><!--state coming from (not case sensitive)-->
+			<state-to>DEAD</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+				<condition>
+					<state>ALIVE</state><!--state to check (not case sentitive)-->
+					<quantity>0,1,4,5,6,7,8</quantity><!--neighbors matching state-->
+					<direction></direction><!--which neighbor to check-->
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

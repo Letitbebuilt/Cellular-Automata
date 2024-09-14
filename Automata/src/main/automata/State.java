@@ -18,4 +18,17 @@ public class State{
 	public Color getColor() {
 		return stateColor;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof State)) return false;
+		State otherState = (State)obj;
+		if(!otherState.stateName.trim().equalsIgnoreCase(stateName.trim())) {
+			return false;
+		}
+		if(otherState.stateColor != stateColor) {
+			return false;
+		}
+		return true;
+	}
 }

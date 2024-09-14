@@ -30,7 +30,8 @@ import main.display.ZoomedCellDisplay;
 import main.display.environmentControl.EnvironmentControlPanel;
 
 public class App {
-	final static String IMG_PATH = "resources/";
+	final static String IMG_PATH = "resources/images/";
+	final static String AUTOMATA_PATH = "resources/automata";
 	private static void createAndShowGUI() {
 		//Create and set up the window.
         JFrame frame = new JFrame("Cellular Automata Simulator");

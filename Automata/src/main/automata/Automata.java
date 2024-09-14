@@ -66,7 +66,10 @@ public class Automata {
 		return new LinkedList<>(neighbors);
 	}
 	
-	
+
+	public List<State> getStates(){
+		return possibleStates;
+	}
 	
 	
 	public void addState(State s) {
