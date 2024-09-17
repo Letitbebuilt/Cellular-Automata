@@ -48,7 +48,7 @@ public class ControlDisplayLinkup {
 			public void actionPerformed(ActionEvent e) {
 				deltaMillis += Math.max(0, System.currentTimeMillis() - oldTime);
 				oldTime = System.currentTimeMillis();
-				while(deltaMillis > (1000/desiredFPS)) {
+				if(deltaMillis > (1000/desiredFPS)) {
 					board.loadNextStates();
 					deltaMillis -= (1000/desiredFPS);
 				}

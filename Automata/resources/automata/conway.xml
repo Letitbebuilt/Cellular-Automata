@@ -35,7 +35,7 @@
 				<condition>
 					<state>ALIVE</state><!--state to check (not case sentitive)-->
 					<quantity>0,1,4,5,6,7,8</quantity><!--neighbors matching state-->
-					<direction></direction><!--which neighbor to check-->
+					<direction></direction><!--which neighbor to check, left blank here deliberately-->
 				</condition>
 			</conditions>
 		</transition>

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,14 +22,9 @@ public class AutomataRules {
 	public ArrayList<State> possibleStates = new ArrayList<>();
 	public List<Function<Automata, Boolean>> stateTransitions = new ArrayList<>();
 	public NeighborType neighborType = NeighborType.MOORE;
-	HashMap<String, Consumer<Node>> nodeParserMap = new HashMap<>();;
 	HashMap<String, Color> knownColors = new HashMap<>();;
 	
 	public AutomataRules(String filePath) {
-		nodeParserMap.put("name", e -> automataName = e.getTextContent());
-		nodeParserMap.put("neighbor-type", e -> setupNeighborType(e));
-		nodeParserMap.put("states", e -> setupStates(e));
-		nodeParserMap.put("transitions", e -> setupTransitions(e));
 		
 		knownColors.put("WHITE", Color.white);
 		knownColors.put("BLACK", Color.black);
@@ -52,47 +46,36 @@ public class AutomataRules {
 		try {
 			db = dbf.newDocumentBuilder();
 			Document document = db.parse(file);
-			NodeList nodes = document.getChildNodes().item(0).getChildNodes();
-			for(int i = 0; i<nodes.getLength(); i++) {
-				Node node = nodes.item(i);
-				Consumer<Node> cons = nodeParserMap.get(node.getNodeName());
-				if(cons != null) {
-					cons.accept(node);
-				}
-			}
+			NodeTraverser rootNode = new NodeTraverser(document.getChildNodes().item(0));
+			automataName = rootNode.getChild("name").get(0).getText();
+			setupNeighborType(rootNode.getChild("neighbor-type").get(0));
+			setupStates(rootNode.getChild("states").get(0));
+			setupTransitions(rootNode.getChild("transitions").get(0));
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private void setupStates(Node node) {
-		NodeList stateNodes = node.getChildNodes();
-		for(int c = 0; c < stateNodes.getLength(); c++) {
-			Node stateNode = stateNodes.item(c);
-			String stateName = "";
-			Color stateColor = Color.black;
-			for(int i = 0; i<stateNode.getChildNodes().getLength(); i++) {
-				Node childNode = stateNode.getChildNodes().item(i);
-				if(childNode.getNodeName().equalsIgnoreCase("name")) {
-					stateName = childNode.getTextContent();
+	private void setupStates(NodeTraverser node) {
+		ArrayList<NodeTraverser> states = node.getChild("state");
+		for(int c = 0; c < states.size(); c++) {
+			NodeTraverser stateNode = states.get(c);
+			String stateName = stateNode.getChild("name").get(0).getText();
+			String colorString = stateNode.getChild("color").get(0).getText();
+			Color stateColor = knownColors.get(colorString.toUpperCase().trim());
+			if(stateColor == null) {
+				try {
+					int r = Integer.parseInt(colorString.substring(0, colorString.indexOf(",")).trim());
+					colorString = colorString.substring(colorString.indexOf(",")+1).trim();
+					int g = Integer.parseInt(colorString.substring(0, colorString.indexOf(",")).trim());
+					colorString = colorString.substring(colorString.indexOf(",")+1).trim();
+					int b = Integer.parseInt(colorString.trim());
+					stateColor = new Color(r, g, b);
 				}
-				if(childNode.getNodeName().equalsIgnoreCase("color")) {
-					String colorString = childNode.getTextContent();
-					stateColor = knownColors.get(colorString.toUpperCase().trim());
-					if(stateColor == null) {
-						try {
-							int r = Integer.parseInt(colorString.substring(0, colorString.indexOf(",")).trim());
-							colorString = colorString.substring(colorString.indexOf(",")+1).trim();
-							int g = Integer.parseInt(colorString.substring(0, colorString.indexOf(",")).trim());
-							colorString = colorString.substring(colorString.indexOf(",")+1).trim();
-							int b = Integer.parseInt(colorString.trim());
-							stateColor = new Color(r, g, b);
-						}
-						catch(Exception e) {
-							stateColor = Color.black;
-						}
-					}
+				catch(Exception e) {
+					stateColor = Color.black;
 				}
 			}
 			State state = new State(stateName, stateColor);
@@ -101,18 +84,160 @@ public class AutomataRules {
 		
 	}
 	
-	private void setupTransitions(Node node) {
-		
+	private void setupTransitions(NodeTraverser node) {
+		ArrayList<NodeTraverser> transitions = node.getChild("transition");
+		for(int c = 0; c < transitions.size(); c++) {
+			NodeTraverser transitionNode = transitions.get(c);
+			String fromStateName = transitionNode.getChild("state-from").get(0).getText();
+			String toStateName = transitionNode.getChild("state-to").get(0).getText();
+			ArrayList<NodeTraverser> conditions = transitionNode.getChild("conditions").get(0).getChild("condition");
+
+			Function<Automata, Boolean> transitionFunction = new Function<>() {
+				@Override
+				public Boolean apply(Automata a) {
+					boolean conditionalsAllMet = true;
+					if(a.currentState.stateName.equalsIgnoreCase(fromStateName)) {
+						NeighborInformation neighborInfo = new NeighborInformation(a);
+						for(int i = 0; i<conditions.size() && conditionalsAllMet; i++) {
+							NodeTraverser condition = conditions.get(i);
+							String stateToCheckForConditional = condition.getChild("state").get(0).textValue;
+							String directionCheck = condition.getChild("direction").get(0).textValue;
+							String quantityToCheckForConditionalString = condition.getChild("quantity").get(0).textValue;
+							if(!directionCheck.isBlank()) {
+								conditionalsAllMet = conditionalsAllMet && neighborInfo.isNeighborInState(directionCheck, stateToCheckForConditional);
+							}
+							else {
+								boolean quantitySatisfied = false;
+								for(String quantityAsString: quantityToCheckForConditionalString.split(",")) {
+									try{
+										Integer quantity = Integer.parseInt(quantityAsString);
+										quantitySatisfied = quantitySatisfied || neighborInfo.hasQuantityNeighborsInState(quantity, stateToCheckForConditional);
+									}
+									catch(Exception e) {}
+								}
+								conditionalsAllMet = conditionalsAllMet && quantitySatisfied;
+							}
+						}
+					}
+					else {
+						conditionalsAllMet = false;
+					}
+					
+					if(conditionalsAllMet) {
+						a.setNextState(toStateName);
+					}
+					return conditionalsAllMet;
+				}
+				
+			};
+			
+			stateTransitions.add(transitionFunction);
+		}
 	}
 	
 	
-	private void setupNeighborType(Node node) {
-		String neighborTypeName = node.getTextContent();
+	private void setupNeighborType(NodeTraverser node) {
+		String neighborTypeName = node.getText();
 		if(neighborTypeName.equalsIgnoreCase("MOORE")) {
 			neighborType = NeighborType.MOORE;
 		}
 		else {
 			neighborType = NeighborType.VON_NEUMANN;
+		}
+	}
+	
+	private class NodeTraverser {
+		private String name = "null";
+		private String textValue = "null";
+		private NodeList children = null;
+		public NodeTraverser(Node node) {
+			if(node != null) {
+				name = node.getNodeName();
+				textValue = node.getTextContent();
+				children = node.getChildNodes();
+			}
+		}
+		
+		public String getText() {
+			return new String(textValue);
+		}
+		
+		public ArrayList<NodeTraverser> getChild(String name) {
+			ArrayList<NodeTraverser> childrenWithName = new ArrayList<>();
+			for(int c = 0; c<children.getLength(); c++) {
+				Node possibleNode = children.item(c);
+				if(name.equalsIgnoreCase(possibleNode.getNodeName())) {
+					childrenWithName.add(new NodeTraverser(possibleNode));
+				}
+			}
+			return childrenWithName;
+		}
+	}
+	
+	private class NeighborInformation{
+		private String upState = "";
+		private String downState = "";
+		private String leftState = "";
+		private String rightState = "";
+		private String upLeftState = "";
+		private String downLeftState = "";
+		private String upRightState = "";
+		private String downRightState = "";
+		private final HashMap<String, Integer> neighborsInState = new HashMap<>();
+		
+		public NeighborInformation(Automata a) {
+			for(Automata neighbor: a.neighbors) {
+				String neighborState = neighbor.currentState.stateName.toLowerCase();
+				Integer currentCountForState = neighborsInState.get(neighborState) == null? 0: neighborsInState.get(neighborState);
+				neighborsInState.put(neighborState, currentCountForState+1);
+				if(neighbor.pos.x == a.pos.x+1) { //to the right
+					if(neighbor.pos.y == a.pos.y-1) { //above visually
+						upRightState = neighborState;
+					}
+					else if(neighbor.pos.y == a.pos.y+1) { //below visually
+						downRightState = neighborState;
+					}
+					else {
+						rightState = neighborState;
+					}
+				}
+				else if(neighbor.pos.x == a.pos.x-1) { //to the left
+					if(neighbor.pos.y == a.pos.y-1) { //above visually
+						upLeftState = neighborState;
+					}
+					else if(neighbor.pos.y == a.pos.y+1) { //below visually
+						downLeftState = neighborState;
+					}
+					else {
+						leftState = neighborState;
+					}
+				}
+				else if(neighbor.pos.y == a.pos.y-1) { //above visually
+					upState = neighborState;
+				}
+				else if(neighbor.pos.y == a.pos.y+1) { //below visually
+					downState = neighborState;
+				}
+			}
+		}
+		
+		public boolean isNeighborInState(String direction, String state) {
+			switch(direction.toLowerCase().trim()) {
+				case "left": return leftState.equalsIgnoreCase(state);
+				case "right": return rightState.equalsIgnoreCase(state);
+				case "up": return upState.equalsIgnoreCase(state);
+				case "down": return downState.equalsIgnoreCase(state);
+				case "upleft": return upLeftState.equalsIgnoreCase(state);
+				case "upright": return upRightState.equalsIgnoreCase(state);
+				case "downleft": return downLeftState.equalsIgnoreCase(state);
+				case "downright": return downRightState.equalsIgnoreCase(state);
+
+				default: return false;
+			}
+		}
+		
+		public boolean hasQuantityNeighborsInState(Integer quantity, String state) {
+			return neighborsInState.get(state.toLowerCase()) == quantity;
 		}
 	}
 }

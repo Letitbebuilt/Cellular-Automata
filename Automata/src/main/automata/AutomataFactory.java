@@ -10,28 +10,14 @@ import java.util.function.Function;
 import main.automata.Automata.NeighborType;
 
 public class AutomataFactory {
+	
+	static AutomataRules conway = new AutomataRules("resources/automata/conway.xml");
 	public static enum AutomataTypes{
 		CONWAY("Conway's Game of Life",
-			List.of(new State("Alive", Color.LIGHT_GRAY), new State("Dead", Color.BLACK)), new Function<>() {
-			public Boolean apply(Automata t) {
-				int counter = 0;
-				for(Automata neighbor: t.neighbors) {
-					if(neighbor.isState("Alive")) {
-						counter++;
-					}
-				}
-				
-				if(counter == 3) {
-					t.setNextState("Alive");
-				}
-				else if(counter != 2 && t.isState("Alive")) {
-					t.setNextState("Dead");
-				}
-				return true;
-			}
-		}, "Dead", NeighborType.MOORE),
+				conway.possibleStates, conway.stateTransitions, "Dead", NeighborType.MOORE),
 		BRIANS_BRAIN("Brian's Brain",
-				List.of(new State("On", Color.LIGHT_GRAY), new State("Dying", Color.CYAN), new State("Off", Color.BLACK)), new Function<>() {
+				List.of(new State("On", Color.LIGHT_GRAY), new State("Dying", Color.CYAN), new State("Off", Color.BLACK)), 
+				List.of(new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				if(t.isState("On")) {
@@ -52,9 +38,10 @@ public class AutomataFactory {
 				}
 				return true;
 			}
-		}, "Off", NeighborType.MOORE),
+		}), "Off", NeighborType.MOORE),
 		WIRE_WORLD("Wire World",
-				List.of(new State("Wire", Color.LIGHT_GRAY), new State("Electron Head", Color.YELLOW), new State("Electron Tail", Color.RED), new State("Grounding", Color.BLACK)), new Function<>() {
+				List.of(new State("Wire", Color.LIGHT_GRAY), new State("Electron Head", Color.YELLOW), new State("Electron Tail", Color.RED), new State("Grounding", Color.BLACK)), 
+				List.of(new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				if(t.isState("Grounding")) {/*do nothing*/}
@@ -76,7 +63,7 @@ public class AutomataFactory {
 				}
 				return true;
 			}
-		}, "Grounding", NeighborType.MOORE),
+		}), "Grounding", NeighborType.MOORE),
 		LANGTON_ANT("Langton's Ant",
 				List.of(
 				new State("White", Color.LIGHT_GRAY), 
@@ -89,7 +76,7 @@ public class AutomataFactory {
 				new State("Ant R B", Color.MAGENTA), 
 				new State("Ant U B", Color.MAGENTA), 
 				new State("Ant D B", Color.MAGENTA))
-			, new Function<>() {
+			, List.of(new Function<>() {
 			public Boolean apply(Automata t) {
 				List<Character> directions = List.of('U', 'R', 'D', 'L');
 				int currentDirection = 0;
@@ -141,9 +128,9 @@ public class AutomataFactory {
 				}
 				return true;
 			}
-		}, "Black", NeighborType.VON_NEUMANN),
+		}), "Black", NeighborType.VON_NEUMANN),
 		DAY_AND_NIGHT("Day and Night",
-				List.of(new State("Alive", Color.ORANGE), new State("Dead", Color.BLACK)), new Function<>() {
+				List.of(new State("Alive", Color.ORANGE), new State("Dead", Color.BLACK)), List.of(new Function<>() {
 			public Boolean apply(Automata t) {
 				int counter = 0;
 				for(Automata neighbor: t.neighbors) {
@@ -160,13 +147,13 @@ public class AutomataFactory {
 				}
 				return true;
 			}
-		}, "Dead", NeighborType.MOORE);
+		}), "Dead", NeighborType.MOORE);
 		public String name;
 		public List<State> states;
-		public Function<Automata, Boolean> transitionRules;
+		public List<Function<Automata, Boolean>> transitionRules;
 		public String defaultStateName;
 		public NeighborType neighborType;
-		AutomataTypes(String name, List<State> states, Function<Automata, Boolean> transitionRules, String defaultStateName, NeighborType neighborType) {
+		AutomataTypes(String name, List<State> states, List<Function<Automata, Boolean>> transitionRules, String defaultStateName, NeighborType neighborType) {
 			this.name = name;
 			this.states = states;
 			this.transitionRules = transitionRules;
@@ -191,7 +178,9 @@ public class AutomataFactory {
 		for(State state: type.states) {
 			a.addState(state);
 		}
-		a.addStateTransitionRule(type.transitionRules);
+		for(Function<Automata, Boolean> transition: type.transitionRules) {
+			a.addStateTransitionRule(transition);
+		}
 		a.setCurrentState(type.defaultStateName);
 		a.setNeighborType(type.neighborType);
 		return a;
