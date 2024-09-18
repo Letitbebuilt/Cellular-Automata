@@ -12,58 +12,13 @@ import main.automata.Automata.NeighborType;
 public class AutomataFactory {
 	
 	static AutomataRules conway = new AutomataRules("resources/automata/conway.xml");
+	static AutomataRules briansBrain = new AutomataRules("resources/automata/brians-brain.xml");
+	static AutomataRules wireWorld = new AutomataRules("resources/automata/wire-world.xml");
+	static AutomataRules dayAndNight = new AutomataRules("resources/automata/day-and-night.xml");
 	public static enum AutomataTypes{
-		CONWAY("Conway's Game of Life",
-				conway.possibleStates, conway.stateTransitions, "Dead", NeighborType.MOORE),
-		BRIANS_BRAIN("Brian's Brain",
-				List.of(new State("On", Color.LIGHT_GRAY), new State("Dying", Color.CYAN), new State("Off", Color.BLACK)), 
-				List.of(new Function<>() {
-			public Boolean apply(Automata t) {
-				int counter = 0;
-				if(t.isState("On")) {
-					t.setNextState("Dying");
-				}
-				else if(t.isState("Dying")) {
-					t.setNextState("Off");
-				}
-				else {
-					for(Automata neighbor: t.neighbors) {
-						if(neighbor.isState("On")) {
-							counter++;
-						}
-					}
-					if(counter == 2) {
-						t.setNextState("On");
-					}
-				}
-				return true;
-			}
-		}), "Off", NeighborType.MOORE),
-		WIRE_WORLD("Wire World",
-				List.of(new State("Wire", Color.LIGHT_GRAY), new State("Electron Head", Color.YELLOW), new State("Electron Tail", Color.RED), new State("Grounding", Color.BLACK)), 
-				List.of(new Function<>() {
-			public Boolean apply(Automata t) {
-				int counter = 0;
-				if(t.isState("Grounding")) {/*do nothing*/}
-				else if(t.isState("Electron Head")) {
-					t.setNextState("Electron Tail");
-				}
-				else if(t.isState("Electron Tail")) {
-					t.setNextState("Wire");
-				}
-				else {
-					for(Automata neighbor: t.neighbors) {
-						if(neighbor.isState("Electron Head")) {
-							counter++;
-						}
-					}
-					if(counter == 2 || counter == 1) {
-						t.setNextState("Electron Head");
-					}
-				}
-				return true;
-			}
-		}), "Grounding", NeighborType.MOORE),
+		CONWAY(conway.automataName, conway.possibleStates, conway.stateTransitions, conway.defaultState, conway.neighborType),
+		BRIANS_BRAIN(briansBrain.automataName, briansBrain.possibleStates, briansBrain.stateTransitions, briansBrain.defaultState, briansBrain.neighborType),
+		WIRE_WORLD(wireWorld.automataName, wireWorld.possibleStates, wireWorld.stateTransitions, wireWorld.defaultState, wireWorld.neighborType),
 		LANGTON_ANT("Langton's Ant",
 				List.of(
 				new State("White", Color.LIGHT_GRAY), 
@@ -129,25 +84,7 @@ public class AutomataFactory {
 				return true;
 			}
 		}), "Black", NeighborType.VON_NEUMANN),
-		DAY_AND_NIGHT("Day and Night",
-				List.of(new State("Alive", Color.ORANGE), new State("Dead", Color.BLACK)), List.of(new Function<>() {
-			public Boolean apply(Automata t) {
-				int counter = 0;
-				for(Automata neighbor: t.neighbors) {
-					if(neighbor.isState("Alive")) {
-						counter++;
-					}
-				}
-				
-				if(counter == 3 || counter == 6 || counter == 7 || counter == 8) {
-					t.setNextState("Alive");
-				}
-				else if(counter != 4 && t.isState("Alive")) {
-					t.setNextState("Dead");
-				}
-				return true;
-			}
-		}), "Dead", NeighborType.MOORE);
+		DAY_AND_NIGHT(dayAndNight.automataName, dayAndNight.possibleStates, dayAndNight.stateTransitions, dayAndNight.defaultState, dayAndNight.neighborType);
 		public String name;
 		public List<State> states;
 		public List<Function<Automata, Boolean>> transitionRules;

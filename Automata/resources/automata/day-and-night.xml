@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <automata>
-	<name>Conway's Game Of Life</name>
+	<name>Day And Night</name>
 	<neighbor-type>MOORE</neighbor-type><!--MOORE and VON-NEUMANN supported, defaults to MOORE-->
 	<states><!-- states for the automata -->
 		<state>
-			<name>ALIVE</name><!--Will display based on case in application-->
-			<color>WHITE</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
+			<name>Alive</name><!--Will display based on case in application-->
+			<color>ORANGE</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
 		</state>
 		<state>
-			<name>DEAD</name>
+			<name>Dead</name>
 			<color>BLACK</color>
 		</state>
 		<default-state>Dead</default-state>
@@ -22,7 +22,7 @@
 			<conditions>
 				<condition>
 					<state>ALIVE</state><!--state to check (not case sentitive)-->
-					<quantity>3</quantity><!--neighbors matching state-->
+					<quantity>3, 6, 7, 8</quantity><!--neighbors matching state-->
 					<direction></direction><!--which neighbor to check-->
 				</condition>
 			</conditions>
@@ -35,7 +35,7 @@
 			<conditions>
 				<condition>
 					<state>ALIVE</state><!--state to check (not case sentitive)-->
-					<quantity>0,1,4,5,6,7,8</quantity><!--neighbors matching state-->
+					<quantity>0, 1, 2, 5</quantity><!--neighbors matching state-->
 					<direction></direction><!--which neighbor to check, left blank here deliberately-->
 				</condition>
 			</conditions>

@@ -20,6 +20,7 @@ import main.automata.Automata.NeighborType;
 public class AutomataRules {
 	public String automataName = "unknown";
 	public ArrayList<State> possibleStates = new ArrayList<>();
+	public String defaultState = "";
 	public List<Function<Automata, Boolean>> stateTransitions = new ArrayList<>();
 	public NeighborType neighborType = NeighborType.MOORE;
 	HashMap<String, Color> knownColors = new HashMap<>();;
@@ -81,7 +82,12 @@ public class AutomataRules {
 			State state = new State(stateName, stateColor);
 			possibleStates.add(state);
 		}
-		
+		if(!node.getChild("default-state").isEmpty()) {
+			defaultState = node.getChild("default-state").get(0).getText();
+		}
+		if(defaultState.isBlank()) {
+			defaultState = possibleStates.get(0).stateName;
+		}
 	}
 	
 	private void setupTransitions(NodeTraverser node) {
@@ -106,11 +112,11 @@ public class AutomataRules {
 							if(!directionCheck.isBlank()) {
 								conditionalsAllMet = conditionalsAllMet && neighborInfo.isNeighborInState(directionCheck, stateToCheckForConditional);
 							}
-							else {
+							else if(!quantityToCheckForConditionalString.isBlank()) {
 								boolean quantitySatisfied = false;
 								for(String quantityAsString: quantityToCheckForConditionalString.split(",")) {
 									try{
-										Integer quantity = Integer.parseInt(quantityAsString);
+										Integer quantity = Integer.parseInt(quantityAsString.trim());
 										quantitySatisfied = quantitySatisfied || neighborInfo.hasQuantityNeighborsInState(quantity, stateToCheckForConditional);
 									}
 									catch(Exception e) {}
@@ -186,10 +192,13 @@ public class AutomataRules {
 		private final HashMap<String, Integer> neighborsInState = new HashMap<>();
 		
 		public NeighborInformation(Automata a) {
+			
+			for(State state: a.getStates()) {
+				neighborsInState.put(state.stateName.toLowerCase(), 0);
+			}
 			for(Automata neighbor: a.neighbors) {
 				String neighborState = neighbor.currentState.stateName.toLowerCase();
-				Integer currentCountForState = neighborsInState.get(neighborState) == null? 0: neighborsInState.get(neighborState);
-				neighborsInState.put(neighborState, currentCountForState+1);
+				neighborsInState.put(neighborState, neighborsInState.get(neighborState)+1);
 				if(neighbor.pos.x == a.pos.x+1) { //to the right
 					if(neighbor.pos.y == a.pos.y-1) { //above visually
 						upRightState = neighborState;

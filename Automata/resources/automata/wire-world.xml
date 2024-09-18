@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Wire World</name>
+	<neighbor-type>MOORE</neighbor-type><!--MOORE and VON-NEUMANN supported, defaults to MOORE-->
+	<states><!-- states for the automata -->
+		<state>
+			<name>Wire</name><!--Will display based on case in application-->
+			<color>LIGHT_GRAY</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
+		</state>
+		<state>
+			<name>Electron Head</name><!--Will display based on case in application-->
+			<color>YELLOW</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
+		</state>
+		<state>
+			<name>Electron Tail</name>
+			<color>RED</color>
+		</state>
+		<state>
+			<name>Grounding</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>Grounding</default-state>
+	</states>
+	<transitions><!-- transition rules between states for the automata -->
+		<transition>
+			<state-from>Electron Head</state-from><!--state coming from (not case sensitive)-->
+			<state-to>Electron Tail</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Electron Tail</state-from><!--state coming from (not case sensitive)-->
+			<state-to>Wire</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Wire</state-from><!--state coming from (not case sensitive)-->
+			<state-to>Electron Head</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+				<condition>
+					<state>Electron Head</state><!--state to check (not case sentitive)-->
+					<quantity>  1, 2 </quantity><!--neighbors matching state-->
+					<direction></direction><!--which neighbor to check-->
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>ALIVE</state-from><!--state coming from (not case sensitive)-->
+			<state-to>DEAD</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+				<condition>
+					<state>ALIVE</state><!--state to check (not case sentitive)-->
+					<quantity>0, 1, 2, 5</quantity><!--neighbors matching state-->
+					<direction></direction><!--which neighbor to check, left blank here deliberately-->
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

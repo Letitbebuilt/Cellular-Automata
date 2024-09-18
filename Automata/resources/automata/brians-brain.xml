@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Brian's Brain</name>
+	<neighbor-type>MOORE</neighbor-type><!--MOORE and VON-NEUMANN supported, defaults to MOORE-->
+	<states><!-- states for the automata -->
+		<state>
+			<name>ON</name><!--Will display based on case in application-->
+			<color>LIGHT_GRAY</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
+		</state>
+		<state>
+			<name>DYING</name>
+			<color>CYAN</color>
+		</state>
+		<state>
+			<name>OFF</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>OFF</default-state>
+	</states>
+	<transitions><!-- transition rules between states for the automata -->
+		<transition>
+			<state-from>ON</state-from><!--state coming from (not case sensitive)-->
+			<state-to>DYING</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>DYING</state-from><!--state coming from (not case sensitive)-->
+			<state-to>OFF</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>OFF</state-from><!--state coming from (not case sensitive)-->
+			<state-to>ON</state-to><!--state going to (not case sensitive)-->
+			<!--conditions are a neighbor quantity check, with each additional check being 
+			joined via "AND" within a transition-->
+			<conditions>
+				<condition>
+					<state>ON</state><!--state to check (not case sentitive)-->
+					<quantity>2</quantity><!--neighbors matching state-->
+					<direction></direction><!--which neighbor to check, left blank here deliberately-->
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>
