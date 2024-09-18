@@ -5,13 +5,14 @@ import java.util.Random;
 
 import main.automata.Automata;
 import main.automata.AutomataFactory;
+import main.automata.AutomataType;
 
 public class Board {	
 	Random rand = new Random();
 	private Automata[][] cells;
 	public int width; 
 	public int height;
-	public AutomataFactory.AutomataTypes currentType = AutomataFactory.AutomataTypes.CONWAY;
+	public AutomataType currentType;
 	public Board(int sizeInCells) {
 		setDimensions(sizeInCells);
 	}
@@ -23,23 +24,28 @@ public class Board {
 		loadCellsForBoard(currentType);
 	}
 	
-	public void setSimulationType(AutomataFactory.AutomataTypes currentType) {
+	public void setSimulationType(AutomataType currentType) {
 		this.currentType = currentType;
 		loadCellsForBoard(currentType);
+		
 	}
 	
-	public void loadCellsForBoard(AutomataFactory.AutomataTypes type) {
-		for(int y = 0; y<height; y++) {
-			for(int x = 0; x<width; x++) {
-				cells[y][x] = AutomataFactory.getCellForAutomata(new Point(x, y), type);
+	public void loadCellsForBoard(AutomataType type) {
+		if(type != null) {
+			for(int y = 0; y<height; y++) {
+				for(int x = 0; x<width; x++) {
+					cells[y][x] = AutomataFactory.getCellForAutomata(new Point(x, y), type);
+				}
+			}
+			for(int x = 0; x<cells.length; x++) {
+				for(int y = 0; y<cells[x].length; y++) {
+					cells[x][y].loadNeighbors(this);
+				}
 			}
 		}
-		for(int x = 0; x<cells.length; x++) {
-			for(int y = 0; y<cells[x].length; y++) {
-				cells[x][y].loadNeighbors(this);
-			}
-		}
+		clear();
 	}
+	
 	public Automata getCell(int x, int y) {
 		if(x < 0 || y < 0) {
 			return null;
@@ -83,7 +89,9 @@ public class Board {
 	public void clear() {
 		for(int y = 0; y<height; y++) {
 			for(int x = 0; x<width; x++) {
-				cells[y][x].setCurrentState(currentType.defaultStateName);
+				if(currentType != null) {
+					cells[y][x].setCurrentState(currentType.defaultStateName);
+				}
 			}
 		}
 	}

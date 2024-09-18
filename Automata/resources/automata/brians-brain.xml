@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Brian's Brain</name>
+	<neighbor-type>MOORE</neighbor-type>
+	<states>
+		<state>
+			<name>ON</name>
+			<color>LIGHT_GRAY</color>
+		</state>
+		<state>
+			<name>DYING</name>
+			<color>CYAN</color>
+		</state>
+		<state>
+			<name>OFF</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>OFF</default-state>
+	</states>
+	<transitions>
+		<transition>
+			<state-from>ON</state-from>
+			<state-to>DYING</state-to>
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>DYING</state-from>
+			<state-to>OFF</state-to>
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>OFF</state-from>
+			<state-to>ON</state-to>
+			<conditions>
+				<condition>
+					<state>ON</state>
+					<quantity>2</quantity>
+					<direction></direction>
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

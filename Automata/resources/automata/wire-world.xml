@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Wire World</name>
+	<neighbor-type>MOORE</neighbor-type>
+	<states>
+		<state>
+			<name>Wire</name>
+			<color>LIGHT_GRAY</color>
+		</state>
+		<state>
+			<name>Electron Head</name>
+			<color>YELLOW</color>
+		</state>
+		<state>
+			<name>Electron Tail</name>
+			<color>RED</color>
+		</state>
+		<state>
+			<name>Grounding</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>Grounding</default-state>
+	</states>
+	<transitions>
+		<transition>
+			<state-from>Electron Head</state-from>
+			<state-to>Electron Tail</state-to>
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Electron Tail</state-from>
+			<state-to>Wire</state-to>
+			<conditions>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Wire</state-from>
+			<state-to>Electron Head</state-to>
+			<conditions>
+				<condition>
+					<state>Electron Head</state>
+					<quantity>  1, 2 </quantity>
+					<direction></direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>ALIVE</state-from>
+			<state-to>DEAD</state-to>
+			<conditions>
+				<condition>
+					<state>ALIVE</state>
+					<quantity>0, 1, 2, 5</quantity>
+					<direction></direction>
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

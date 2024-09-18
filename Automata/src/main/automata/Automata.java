@@ -20,7 +20,7 @@ public class Automata {
 	private List<State> possibleStates = new ArrayList<>();
 	private List<Function<Automata, Boolean>> stateTransitions = new ArrayList<>();
 	private NeighborType neighborType;
-	protected List<Automata> neighbors = new ArrayList<>();
+	public List<Automata> neighbors = new ArrayList<>();
 	
 	protected Automata(Point pos) {
 		this.pos = pos;
@@ -66,7 +66,10 @@ public class Automata {
 		return new LinkedList<>(neighbors);
 	}
 	
-	
+
+	public List<State> getStates(){
+		return possibleStates;
+	}
 	
 	
 	public void addState(State s) {

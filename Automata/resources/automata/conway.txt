@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata> <!--Left in as an example. Changing the extension to .xml will allow it to load-->
+	<name>Conway 2</name>
+	<neighbor-type>MOORE</neighbor-type>
+	<states>
+		<state>
+			<name>Alive</name>
+			<color>LIGHT_GRAY</color>
+		</state>
+		<state>
+			<name>Dead</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>Dead</default-state>
+	</states>
+	<transitions>
+		<transition>
+			<state-from>DEAD</state-from>
+			<state-to>ALIVE</state-to>
+			<conditions>
+				<condition>
+					<state>ALIVE</state>
+					<quantity>3</quantity>
+					<direction></direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>ALIVE</state-from>
+			<state-to>DEAD</state-to>
+			<conditions>
+				<condition>
+					<state>ALIVE</state>
+					<quantity>0, 1, 4, 5, 6, 7, 8</quantity>
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

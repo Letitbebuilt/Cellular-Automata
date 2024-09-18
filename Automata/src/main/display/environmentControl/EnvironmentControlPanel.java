@@ -56,7 +56,6 @@ public class EnvironmentControlPanel extends JPanel{
 		applyLabelStyling(label, 12);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T> void createRadioControlOption(String controlName, Consumer<T> actionToPerform, HashMap<String, T> displayValueMap, int initialSelected) {
 		
 		JPanel radioControl = new JPanel();

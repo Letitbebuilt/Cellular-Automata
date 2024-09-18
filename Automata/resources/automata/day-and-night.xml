@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Day And Night</name>
+	<neighbor-type>MOORE</neighbor-type>
+	<states>
+		<state>
+			<name>Alive</name>
+			<color>ORANGE</color>
+		</state>
+		<state>
+			<name>Dead</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>Dead</default-state>
+	</states>
+	<transitions>
+		<transition>
+			<state-from>DEAD</state-from>
+			<state-to>ALIVE</state-to>
+			<conditions>
+				<condition>
+					<state>ALIVE</state>
+					<quantity>3, 6, 7, 8</quantity>
+					<direction></direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>ALIVE</state-from>
+			<state-to>DEAD</state-to>
+			<conditions>
+				<condition>
+					<state>ALIVE</state>
+					<quantity>0, 1, 2, 5</quantity>
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

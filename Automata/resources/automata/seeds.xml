@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata>
+	<name>Seeds</name>
+	<neighbor-type>MOORE</neighbor-type>
+	<states>
+		<state>
+			<name>Alive</name>
+			<color>50,80,200</color>
+		</state>
+		<state>
+			<name>Dead</name>
+			<color>BLACK</color>
+		</state>
+		<default-state>Dead</default-state>
+	</states>
+	<transitions>
+		<transition>
+			<state-from>Dead</state-from>
+			<state-to>Alive</state-to>
+			<conditions>
+				<condition>
+					<state>Alive</state>
+					<quantity>2</quantity>
+					<direction></direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Alive</state-from>
+			<state-to>Dead</state-to>
+			<conditions>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automata> <!--Left in as example. Changing file extension to .xml will allow it to load. -->
+	<name>Langton's Ant 2</name>
+	<neighbor-type>VON-NEUMANN</neighbor-type>
+	<states>
+		<state>
+			<name>White</name>
+			<color>LIGHT_GRAY</color>
+		</state>
+		<state>
+			<name>Black</name>
+			<color>BLACK</color>
+		</state>
+		<state>
+			<name>Ant L W</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant R W</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant U W</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant D W</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant L B</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant R B</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant U B</name>
+			<color>MAGENTA</color>
+		</state>
+		<state>
+			<name>Ant D B</name>
+			<color>MAGENTA</color>
+		</state>
+		<default-state>Black</default-state>
+	</states>
+	<transitions>
+		<transition>
+			<state-from>Ant L B, Ant R B, Ant U B, Ant D B</state-from>
+			<state-to>White</state-to>
+			<conditions></conditions>
+		</transition>
+		<transition>
+			<state-from>Ant L W, Ant R W, Ant U W, Ant D W</state-from>
+			<state-to>Black</state-to>
+			<conditions></conditions>
+		</transition>
+		
+		<transition>
+			<state-from>White</state-from>
+			<state-to>Ant L W</state-to>
+			<conditions>
+				<condition>
+					<state>Ant D W, Ant U B</state>
+					<direction>Right</direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>White</state-from>
+			<state-to>Ant D W</state-to>
+			<conditions>
+				<condition>
+					<state>Ant R W, Ant L B</state>
+					<direction>Up</direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>White</state-from>
+			<state-to>Ant R W</state-to>
+			<conditions>
+				<condition>
+					<state>Ant U W, Ant D B</state>
+					<direction>Left</direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>White</state-from>
+			<state-to>Ant U W</state-to>
+			<conditions>
+				<condition>
+					<state>Ant L W, Ant R B</state>
+					<direction>Down</direction>
+				</condition>
+			</conditions>
+		</transition>
+		
+		<transition>
+			<state-from>Black</state-from>
+			<state-to>Ant L B</state-to>
+			<conditions>
+				<condition>
+					<state>Ant U B, Ant D W</state>
+					<direction>Right</direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Black</state-from>
+			<state-to>Ant D B</state-to>
+			<conditions>
+				<condition>
+					<state>Ant L B, Ant R W</state>
+					<direction>Up</direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Black</state-from>
+			<state-to>Ant R B</state-to>
+			<conditions>
+				<condition>
+					<state>Ant D B, Ant U W</state>
+					<direction>Left</direction>
+				</condition>
+			</conditions>
+		</transition>
+		<transition>
+			<state-from>Black</state-from>
+			<state-to>Ant U B</state-to>
+			<conditions>
+				<condition>
+					<state>Ant R B, Ant L W</state>
+					<direction>Down</direction>
+				</condition>
+			</conditions>
+		</transition>
+	</transitions>
+</automata>
