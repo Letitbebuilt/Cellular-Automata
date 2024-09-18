@@ -5,8 +5,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -77,6 +78,7 @@ public class AutomataRules {
 				}
 				catch(Exception e) {
 					stateColor = Color.black;
+					e.printStackTrace();
 				}
 			}
 			State state = new State(stateName, stateColor);
@@ -94,32 +96,50 @@ public class AutomataRules {
 		ArrayList<NodeTraverser> transitions = node.getChild("transition");
 		for(int c = 0; c < transitions.size(); c++) {
 			NodeTraverser transitionNode = transitions.get(c);
-			String fromStateName = transitionNode.getChild("state-from").get(0).getText();
+			List<String> fromStates = Stream.of(transitionNode.getChild("state-from").get(0).getText().split(","))
+					.map(s -> s.toLowerCase().trim())
+					.collect(Collectors.toList());
 			String toStateName = transitionNode.getChild("state-to").get(0).getText();
-			ArrayList<NodeTraverser> conditions = transitionNode.getChild("conditions").get(0).getChild("condition");
+			ArrayList<NodeTraverser> conditions;
+			if(!transitionNode.getChild("conditions").isEmpty()) {
+				conditions = transitionNode.getChild("conditions").get(0).getChild("condition");
+			} 
+			else {
+				conditions = new ArrayList<>();
+			}
 
 			Function<Automata, Boolean> transitionFunction = new Function<>() {
 				@Override
 				public Boolean apply(Automata a) {
 					boolean conditionalsAllMet = true;
-					if(a.currentState.stateName.equalsIgnoreCase(fromStateName)) {
+					if(fromStates.contains(a.currentState.stateName.toLowerCase())) {
 						NeighborInformation neighborInfo = new NeighborInformation(a);
 						for(int i = 0; i<conditions.size() && conditionalsAllMet; i++) {
 							NodeTraverser condition = conditions.get(i);
-							String stateToCheckForConditional = condition.getChild("state").get(0).textValue;
-							String directionCheck = condition.getChild("direction").get(0).textValue;
-							String quantityToCheckForConditionalString = condition.getChild("quantity").get(0).textValue;
+							String[] statesToCheckForConditional = condition.getChild("state").get(0).textValue.split(",");
+							String directionCheck = "";
+							if(!condition.getChild("direction").isEmpty()) {
+								directionCheck = condition.getChild("direction").get(0).textValue;
+							}
+							
+							String quantityToCheckForConditionalString = "";
+							if(!condition.getChild("quantity").isEmpty()) {
+								quantityToCheckForConditionalString = condition.getChild("quantity").get(0).textValue;
+							}
+							
 							if(!directionCheck.isBlank()) {
-								conditionalsAllMet = conditionalsAllMet && neighborInfo.isNeighborInState(directionCheck, stateToCheckForConditional);
+								conditionalsAllMet = conditionalsAllMet && neighborInfo.isNeighborInState(directionCheck, statesToCheckForConditional);
 							}
 							else if(!quantityToCheckForConditionalString.isBlank()) {
 								boolean quantitySatisfied = false;
 								for(String quantityAsString: quantityToCheckForConditionalString.split(",")) {
 									try{
 										Integer quantity = Integer.parseInt(quantityAsString.trim());
-										quantitySatisfied = quantitySatisfied || neighborInfo.hasQuantityNeighborsInState(quantity, stateToCheckForConditional);
+										quantitySatisfied = quantitySatisfied || neighborInfo.hasQuantityNeighborsInState(quantity, statesToCheckForConditional[0]);
 									}
-									catch(Exception e) {}
+									catch(Exception e) {
+										e.printStackTrace();
+									}
 								}
 								conditionalsAllMet = conditionalsAllMet && quantitySatisfied;
 							}
@@ -230,16 +250,25 @@ public class AutomataRules {
 			}
 		}
 		
-		public boolean isNeighborInState(String direction, String state) {
+		public boolean isNeighborInState(String direction, String... state) {
+			List<String> statesAllowed = Stream.of(state).map(s -> s.toLowerCase().trim()).collect(Collectors.toList());
+			int counter = 0;
+			for(String key: statesAllowed) {
+				counter += neighborsInState.get(key);
+			}
+			if(counter == 0) {
+				return false;
+			}
+			
 			switch(direction.toLowerCase().trim()) {
-				case "left": return leftState.equalsIgnoreCase(state);
-				case "right": return rightState.equalsIgnoreCase(state);
-				case "up": return upState.equalsIgnoreCase(state);
-				case "down": return downState.equalsIgnoreCase(state);
-				case "upleft": return upLeftState.equalsIgnoreCase(state);
-				case "upright": return upRightState.equalsIgnoreCase(state);
-				case "downleft": return downLeftState.equalsIgnoreCase(state);
-				case "downright": return downRightState.equalsIgnoreCase(state);
+				case "left": return statesAllowed.contains(leftState);
+				case "right": return statesAllowed.contains(rightState);
+				case "up": return statesAllowed.contains(upState);
+				case "down": return statesAllowed.contains(downState);
+				case "upleft": return statesAllowed.contains(upLeftState);
+				case "upright": return statesAllowed.contains(upRightState);
+				case "downleft": return statesAllowed.contains(downLeftState);
+				case "downright": return statesAllowed.contains(downRightState);
 
 				default: return false;
 			}

@@ -3,7 +3,6 @@ package main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Label;
@@ -11,10 +10,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -22,8 +18,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import main.automata.AutomataFactory;
-import main.automata.AutomataFactory.AutomataTypes;
+import main.automata.AutomataType;
 import main.display.CellDisplay;
 import main.display.ControlDisplayLinkup;
 import main.display.ZoomedCellDisplay;
@@ -72,9 +67,8 @@ public class App {
 		
 		
 		JComboBox<String> stateOptions = new JComboBox<String>();
-		linkup.setSimulationType(AutomataFactory.AutomataTypes.CONWAY);
 		stateOptions.removeAllItems();
-		for(String stateName: AutomataFactory.AutomataTypes.CONWAY.getStateNames()) {
+		for(String stateName: linkup.getCurrentSimulationType().getStateNames()) {
 			stateOptions.addItem(stateName);
 		}
 		linkup.setDrawingStateType((String) stateOptions.getSelectedItem());
@@ -84,8 +78,8 @@ public class App {
 		EnvironmentControlPanel controlPanel = new EnvironmentControlPanel();
 		controlPanel.setMaximumSize(new Dimension((int)zoomDisplay.getPreferredSize().getWidth(), 10000));
 		controlPanelWrapper.add(controlPanel);
-		LinkedHashMap<String, AutomataTypes> automataTypesMap = new LinkedHashMap<>();
-		Stream.of(AutomataFactory.AutomataTypes.values()).forEach(e -> automataTypesMap.put(e.name, e));
+		LinkedHashMap<String, AutomataType> automataTypesMap = new LinkedHashMap<>();
+		linkup.getSimulationTypes().stream().forEach(e -> automataTypesMap.put(e.name, e));
 		controlPanel.createDropdownControlOption("Type of automata: ", 
 				(e -> {
 					linkup.setSimulationType(e);

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<automata>
-	<name>Day And Night</name>
+<automata> <!--Left in as an example. Changing the extension to .xml will allow it to load-->
+	<name>Conway 2</name>
 	<neighbor-type>MOORE</neighbor-type>
 	<states>
 		<state>
 			<name>Alive</name>
-			<color>ORANGE</color>
+			<color>LIGHT_GRAY</color>
 		</state>
 		<state>
 			<name>Dead</name>
@@ -20,7 +20,7 @@
 			<conditions>
 				<condition>
 					<state>ALIVE</state>
-					<quantity>3, 6, 7, 8</quantity>
+					<quantity>3</quantity>
 					<direction></direction>
 				</condition>
 			</conditions>
@@ -31,7 +31,7 @@
 			<conditions>
 				<condition>
 					<state>ALIVE</state>
-					<quantity>0, 1, 2, 5</quantity>
+					<quantity>0, 1, 4, 5, 6, 7, 8</quantity>
 				</condition>
 			</conditions>
 		</transition>

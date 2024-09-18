@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <automata>
-	<name>Day And Night</name>
+	<name>Highlife</name>
 	<neighbor-type>MOORE</neighbor-type>
 	<states>
 		<state>
 			<name>Alive</name>
-			<color>ORANGE</color>
+			<color>50,200,50</color>
 		</state>
 		<state>
 			<name>Dead</name>
@@ -15,23 +15,24 @@
 	</states>
 	<transitions>
 		<transition>
-			<state-from>DEAD</state-from>
-			<state-to>ALIVE</state-to>
+			<state-from>Dead</state-from>
+			<state-to>Alive</state-to>
 			<conditions>
 				<condition>
-					<state>ALIVE</state>
-					<quantity>3, 6, 7, 8</quantity>
+					<state>Alive</state>
+					<quantity>3,6</quantity>
 					<direction></direction>
 				</condition>
 			</conditions>
 		</transition>
 		<transition>
-			<state-from>ALIVE</state-from>
-			<state-to>DEAD</state-to>
+			<state-from>Alive</state-from>
+			<state-to>Dead</state-to>
 			<conditions>
 				<condition>
-					<state>ALIVE</state>
-					<quantity>0, 1, 2, 5</quantity>
+					<state>Alive</state>
+					<quantity>0,1,4,5,6,7,8</quantity>
+					<direction></direction>
 				</condition>
 			</conditions>
 		</transition>

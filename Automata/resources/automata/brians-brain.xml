@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <automata>
 	<name>Brian's Brain</name>
-	<neighbor-type>MOORE</neighbor-type><!--MOORE and VON-NEUMANN supported, defaults to MOORE-->
-	<states><!-- states for the automata -->
+	<neighbor-type>MOORE</neighbor-type>
+	<states>
 		<state>
-			<name>ON</name><!--Will display based on case in application-->
-			<color>LIGHT_GRAY</color><!--string or RGB code (rrr,ggg,bbb). Selects random color if fails-->
+			<name>ON</name>
+			<color>LIGHT_GRAY</color>
 		</state>
 		<state>
 			<name>DYING</name>
@@ -17,33 +17,27 @@
 		</state>
 		<default-state>OFF</default-state>
 	</states>
-	<transitions><!-- transition rules between states for the automata -->
+	<transitions>
 		<transition>
-			<state-from>ON</state-from><!--state coming from (not case sensitive)-->
-			<state-to>DYING</state-to><!--state going to (not case sensitive)-->
-			<!--conditions are a neighbor quantity check, with each additional check being 
-			joined via "AND" within a transition-->
+			<state-from>ON</state-from>
+			<state-to>DYING</state-to>
 			<conditions>
 			</conditions>
 		</transition>
 		<transition>
-			<state-from>DYING</state-from><!--state coming from (not case sensitive)-->
-			<state-to>OFF</state-to><!--state going to (not case sensitive)-->
-			<!--conditions are a neighbor quantity check, with each additional check being 
-			joined via "AND" within a transition-->
+			<state-from>DYING</state-from>
+			<state-to>OFF</state-to>
 			<conditions>
 			</conditions>
 		</transition>
 		<transition>
-			<state-from>OFF</state-from><!--state coming from (not case sensitive)-->
-			<state-to>ON</state-to><!--state going to (not case sensitive)-->
-			<!--conditions are a neighbor quantity check, with each additional check being 
-			joined via "AND" within a transition-->
+			<state-from>OFF</state-from>
+			<state-to>ON</state-to>
 			<conditions>
 				<condition>
-					<state>ON</state><!--state to check (not case sentitive)-->
-					<quantity>2</quantity><!--neighbors matching state-->
-					<direction></direction><!--which neighbor to check, left blank here deliberately-->
+					<state>ON</state>
+					<quantity>2</quantity>
+					<direction></direction>
 				</condition>
 			</conditions>
 		</transition>
